@@ -142,6 +142,4 @@ controller/  (控制层)
 
 Main.java  (程序入口)
 
-**另：**项目压缩包放置在`程序设计课设`文件夹中，直接使用Intellij IDEA打开即可开始项目开发工作
-
 > Written by Liu 2026/06/14
