@@ -31,7 +31,7 @@ public class QuizController{
         );
     }
 
-    public void choice1(){
+    public void run(){
         while(true){
             StartMenu();
             String choice = scanner.nextLine().trim();
@@ -66,10 +66,12 @@ public class QuizController{
             if(user.getUsername().equals(username) && user.getPassword().equals(password)){
                 System.out.println("登录成功！用户："+username+"\n");
                 this.user = user;
+                showQuizMenu();
                 break;
-            }
+            }else if(!DataService.isUsernameExist(username)){
+                System.out.println("登录失败！用户不存在或密码错误！");
+            }else{}
         }
-        System.out.println("登录失败！用户不存在或密码错误！");
     }
 
     private void handleRegister(){
@@ -79,6 +81,7 @@ public class QuizController{
 
         if(dataService.isUsernameExist(username)){
             System.out.println("用户已存在！请输入其它用户名！");
+            handleRegister();
             return;
         }
 
@@ -88,23 +91,32 @@ public class QuizController{
         String confirmPassword = scanner.nextLine().trim();
         if(!password.equals(confirmPassword)){
             System.out.println("两次输入的密码不一致!");
+            handleRegister();
             return;
         }
 
         dataService.registerUser(username, password);
         System.out.println("注册成功！请登录。用户："+username+"\n");
+        handleLogin();
     }
 
     private void showQuizMenu(){
         System.out.print(
                 "##############################"+
-                "\n#            测试菜单          #"+
-                "\n##############################\n"
+                        "\n#            测试菜单          #"+
+                        "\n##############################\n"
         );
         System.out.println("1.开始答题");
         System.out.println("2.查看历史成绩");
         System.out.println("3.返回上级菜单");
         System.out.print(">");
         String choice = scanner.nextLine().trim();
+        switch(choice){
+            case "1":
+        }
+    }
+
+    private void startQuiz(){
+
     }
 }

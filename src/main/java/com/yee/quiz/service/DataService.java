@@ -13,21 +13,24 @@ import com.yee.quiz.model.*;
 
 public class DataService {
 
-    private static final String usersJsonPath = "src/main/resources/users.json";
+    private static final String DATA_DIR = System.getProperty("user.dir") + File.separator + "data";
+    private static final String usersJsonPath = DATA_DIR + File.separator + "users.json";
+    private static final String questionsJsonPath = DATA_DIR + File.separator + "questions.json";
+    private static final String quizLogJsonPath = DATA_DIR + File.separator + "quizLog.json";
 
     //加载users.json文件
     public static List<User> loadUsersFromJson(){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
-            InputStream inputStream = User.class.getClassLoader().getResourceAsStream("users.json");
+            File file = new File(usersJsonPath);
 
-            //处理users.json文件缺失
-            if(inputStream == null){
-                throw new RuntimeException("无法找到users.json文件");
+            if(!file.exists()){
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, new java.util.ArrayList<>());
             }
 
-            List<User> users = objectMapper.readValue(inputStream, new TypeReference<List<User>>(){});
-            inputStream.close();
+            List<User> users = objectMapper.readValue(file, new TypeReference<List<User>>(){});
             return users;
         }catch (Exception e){
             throw new RuntimeException("读取users.json失败："+e.getMessage(),e);
@@ -38,15 +41,23 @@ public class DataService {
     public static List<Question> loadQuestionsFromJson(){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
-            InputStream inputStream = Question.class.getClassLoader().getResourceAsStream("questions.json");
+            File file = new File(questionsJsonPath);
 
-            //处理questions.json文件缺失
-            if(inputStream == null){
-                throw new RuntimeException("无法找到questions.json文件");
+            if(!file.exists()){
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                
+                InputStream inputStream = Question.class.getClassLoader().getResourceAsStream("questions.json");
+                if(inputStream != null){
+                    List<Question> questions = objectMapper.readValue(inputStream, new TypeReference<List<Question>>(){});
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, questions);
+                    inputStream.close();
+                } else {
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, new java.util.ArrayList<>());
+                }
             }
 
-            List<Question> questions = objectMapper.readValue(inputStream, new TypeReference<List<Question>>(){});
-            inputStream.close();
+            List<Question> questions = objectMapper.readValue(file, new TypeReference<List<Question>>(){});
             return questions;
         }catch (Exception e){
             throw new RuntimeException("读取questions.json失败："+e.getMessage(),e);
@@ -57,15 +68,15 @@ public class DataService {
     public static List<QuizLog> loadQuizLogsFromJson(){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
-            InputStream inputStream = Question.class.getClassLoader().getResourceAsStream("quizLog.json");
+            File file = new File(quizLogJsonPath);
 
-            //处理quizLog.json文件缺失
-            if(inputStream == null){
-                throw new RuntimeException("无法找到quizLog.json文件");
+            if(!file.exists()){
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, new java.util.ArrayList<>());
             }
 
-            List<QuizLog> quizLogs = objectMapper.readValue(inputStream, new TypeReference<List<QuizLog>>(){});
-            inputStream.close();
+            List<QuizLog> quizLogs = objectMapper.readValue(file, new TypeReference<List<QuizLog>>(){});
             return quizLogs;
         }catch (Exception e){
             throw new RuntimeException("读取quizLog.json失败："+e.getMessage(),e);
@@ -88,17 +99,35 @@ public class DataService {
             ObjectMapper objectMapper = new ObjectMapper();
             File file = new File(usersJsonPath);
 
-            //如果程序运行过程文件丢失防崩溃
             if(!file.exists()){
                 file.getParentFile().mkdirs();
                 file.createNewFile();
             }
-            //核心写入逻辑
+            
             FileWriter fileWriter = new FileWriter(file);
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(fileWriter, users);
             fileWriter.close();
         }catch (IOException e){
             throw new RuntimeException("保存users.json失败："+e.getMessage(),e);
+        }
+    }
+
+    //保存答题日志至quizLog.json
+    public static void saveQuizLogsToJson(List<QuizLog> quizLogs){
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            File file = new File(quizLogJsonPath);
+
+            if(!file.exists()){
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            
+            FileWriter fileWriter = new FileWriter(file);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(fileWriter, quizLogs);
+            fileWriter.close();
+        }catch (IOException e){
+            throw new RuntimeException("保存quizLog.json失败："+e.getMessage(),e);
         }
     }
 
