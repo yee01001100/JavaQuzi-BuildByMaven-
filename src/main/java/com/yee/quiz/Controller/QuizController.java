@@ -101,22 +101,115 @@ public class QuizController{
     }
 
     private void showQuizMenu(){
-        System.out.print(
-                "##############################"+
-                        "\n#            测试菜单          #"+
-                        "\n##############################\n"
-        );
-        System.out.println("1.开始答题");
-        System.out.println("2.查看历史成绩");
-        System.out.println("3.返回上级菜单");
-        System.out.print(">");
-        String choice = scanner.nextLine().trim();
-        switch(choice){
-            case "1":
+        while(true){
+            System.out.print(
+                    "##############################"+
+                            "\n#            测试菜单          #"+
+                            "\n##############################\n"
+            );
+            System.out.println("1.开始答题");
+            System.out.println("2.查看历史成绩");
+            System.out.println("3.返回上级菜单");
+            System.out.print(">");
+            String choice = scanner.nextLine().trim();
+            switch(choice){
+                case "1":
+                    startQuiz();
+                    break;
+                case "2":
+                    viewHistory();
+                    break;
+                case "3":
+                    return;
+                default:
+                    System.out.println("无效选择！");
+            }
         }
     }
 
     private void startQuiz(){
+        System.out.println("\n--- 开始答题 ---");
+        System.out.print("请输入题目数量（最多100道）："+"\n>");
+        String input = scanner.nextLine().trim();
+        
+        int questionCount;
+        try {
+            questionCount = Integer.parseInt(input);
+            if (questionCount <= 0 || questionCount > 100) {
+                System.out.println("题目数量必须在1-100之间！");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("输入无效，请输入数字！");
+            return;
+        }
 
+        quizService.startQuiz(questionCount);
+        
+        while (quizService.hasNextQuestion()) {
+            Question question = quizService.getNextQuestion();
+            displayQuestion(question);
+            
+            System.out.print("请输入你的答案（A/B/C/D）："+"\n>");
+            String userAnswer = scanner.nextLine().trim();
+            
+            if (userAnswer.isEmpty()) {
+                System.out.println("答案不能为空！视为答错。\n");
+                quizService.checkAnswer(question, "");
+                continue;
+            }
+            
+            quizService.checkAnswer(question, userAnswer);
+        }
+        
+        QuizLog quizLog = quizService.finishQuiz(user.getUsername());
+        showQuizResult(quizLog);
+    }
+
+    private void displayQuestion(Question question) {
+        System.out.println("----------------------------------------");
+        System.out.println("【" + question.getCategory() + "】" + question.getQuestion());
+        
+        String[] options = question.getOptions();
+        for (String option : options) {
+            System.out.println(option);
+        }
+        System.out.println();
+    }
+
+    private void showQuizResult(QuizLog quizLog) {
+        System.out.println("\n========== 答题结果 ==========");
+        System.out.println("用户名：" + quizLog.getName());
+        System.out.println("答对题数：" + quizLog.getCorrectCount());
+        System.out.println("答错题数：" + quizLog.getWrongCount());
+        System.out.println("得分：" + quizLog.getScore() + " 分");
+        System.out.println("==============================\n");
+    }
+
+    private void viewHistory() {
+        System.out.println("\n--- 历史成绩 ---");
+        
+        List<QuizLog> history = quizService.getUserQuizHistory(user.getUsername());
+        
+        if (history.isEmpty()) {
+            System.out.println("暂无答题记录！\n");
+            return;
+        }
+        
+        System.out.println("共 " + history.size() + " 条记录：\n");
+        System.out.printf("%-5s %-10s %-8s %-8s %-6s%n", "序号", "用户名", "答对", "答错", "得分");
+        System.out.println("--------------------------------------------");
+        
+        for (int i = 0; i < history.size(); i++) {
+            QuizLog log = history.get(i);
+            System.out.printf("%-5d %-10s %-8s %-8s %-6s%n",
+                i + 1,
+                log.getName(),
+                log.getCorrectCount(),
+                log.getWrongCount(),
+                log.getScore() + "分"
+            );
+        }
+        System.out.println();
     }
 }

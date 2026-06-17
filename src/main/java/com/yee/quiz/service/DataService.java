@@ -131,6 +131,25 @@ public class DataService {
         }
     }
 
+    //保存问题至questions.json
+    public static void saveQuestionsToJson(List<Question> questions){
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            File file = new File(questionsJsonPath);
+
+            if(!file.exists()){
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            FileWriter fileWriter = new FileWriter(file);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(fileWriter, questions);
+            fileWriter.close();
+        }catch (IOException e){
+            throw new RuntimeException("保存questions.json失败："+e.getMessage(),e);
+        }
+    }
+
     //新用户注册
     public static void registerUser(String username, String password){
         List<User> users = loadUsersFromJson();

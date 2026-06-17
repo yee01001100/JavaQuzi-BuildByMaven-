@@ -1,6 +1,6 @@
 [ {
   "id" : "1",
   "category" : "student",
-  "username" : "te",
-  "password" : "tee"
+  "username" : "test",
+  "password" : "test"
 } ]
