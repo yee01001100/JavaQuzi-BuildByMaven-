@@ -160,4 +160,17 @@ public class DataService {
 
         saveUsersToJson(users);
     }
+
+    //用户注销
+    public static void logoutUser(String username){
+        List<User> users = loadUsersFromJson();
+        for(int i=0;i<users.size();i++){
+            User user = users.get(i);
+            if(user.getUsername().equals(username)){
+                users.remove(i);
+                break;
+            }
+        }
+        saveUsersToJson(users);
+    }
 }

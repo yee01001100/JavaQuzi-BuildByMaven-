@@ -19,15 +19,17 @@ public class QuizController{
     }
 
     public void StartMenu(){
+        ArtTextPrinter.show();
+        System.out.println("Version: 1.0");
         System.out.print(
                 "##############################"+
-                "\n#      Java知识在线测试系统     #"+
+                "\n#      Java知识在线测试系统      #"+
                 "\n##############################\n"
         );
         System.out.print(
                 "1.用户登录"+
                 "\n2.用户注册"+
-                "\n3.退出系统\n>"
+                "\n3.退出系统\n> "
         );
     }
 
@@ -55,28 +57,37 @@ public class QuizController{
 
     private void handleLogin(){
         System.out.println("\n--- 用户登录 ---");
-        System.out.print("请输入用户名："+"\n>");
+        System.out.print("请输入用户名："+"\n> ");
         String username = scanner.nextLine().trim();
 
-        System.out.print("请输入密码："+"\n>");
+        System.out.print("请输入密码："+"\n> ");
         String password = scanner.nextLine().trim();
 
         List<User> users = dataService.loadUsersFromJson();
+        boolean loginSuccess = false;
+        
         for(User user : users){
             if(user.getUsername().equals(username) && user.getPassword().equals(password)){
                 System.out.println("登录成功！用户："+username+"\n");
                 this.user = user;
+                loginSuccess = true;
                 showQuizMenu();
                 break;
-            }else if(!DataService.isUsernameExist(username)){
-                System.out.println("登录失败！用户不存在或密码错误！");
-            }else{}
+            }
+        }
+        
+        if(!loginSuccess){
+            if(DataService.isUsernameExist(username)){
+                System.out.println("登录失败！密码错误！");
+            }else{
+                System.out.println("登录失败！用户不存在！");
+            }
         }
     }
 
     private void handleRegister(){
         System.out.println("\n--- 用户注册 ---");
-        System.out.print("请输入用户名："+"\n>");
+        System.out.print("请输入用户名："+"\n> ");
         String username = scanner.nextLine().trim();
 
         if(dataService.isUsernameExist(username)){
@@ -85,9 +96,9 @@ public class QuizController{
             return;
         }
 
-        System.out.print("请输入密码："+"\n>");
+        System.out.print("请输入密码："+"\n> ");
         String password = scanner.nextLine().trim();
-        System.out.print("请再次确认密码："+"\n>");
+        System.out.print("请再次确认密码："+"\n> ");
         String confirmPassword = scanner.nextLine().trim();
         if(!password.equals(confirmPassword)){
             System.out.println("两次输入的密码不一致!");
@@ -109,8 +120,9 @@ public class QuizController{
             );
             System.out.println("1.开始答题");
             System.out.println("2.查看历史成绩");
-            System.out.println("3.返回上级菜单");
-            System.out.print(">");
+            System.out.println("3.注销当前账户");
+            System.out.println("4.返回上级菜单");
+            System.out.print("> ");
             String choice = scanner.nextLine().trim();
             switch(choice){
                 case "1":
@@ -120,6 +132,9 @@ public class QuizController{
                     viewHistory();
                     break;
                 case "3":
+                    loggout(user.getUsername());
+                    break;
+                case "4":
                     return;
                 default:
                     System.out.println("无效选择！");
@@ -129,7 +144,7 @@ public class QuizController{
 
     private void startQuiz(){
         System.out.println("\n--- 开始答题 ---");
-        System.out.print("请输入题目数量（最多100道）："+"\n>");
+        System.out.print("请输入题目数量（最多100道）："+"\n> ");
         String input = scanner.nextLine().trim();
         
         int questionCount;
@@ -150,7 +165,7 @@ public class QuizController{
             Question question = quizService.getNextQuestion();
             displayQuestion(question);
             
-            System.out.print("请输入你的答案（A/B/C/D）："+"\n>");
+            System.out.print("请输入你的答案（A/B/C/D）："+"\n> ");
             String userAnswer = scanner.nextLine().trim();
             
             if (userAnswer.isEmpty()) {
@@ -211,5 +226,22 @@ public class QuizController{
             );
         }
         System.out.println();
+    }
+
+    private void loggout(String name){
+        System.out.println("你确定要注销当前账户(用户名：" + name + ")吗？");
+        System.out.print("1.确定\n"+"2.取消"+"\n> ");
+        String str = scanner.nextLine().trim();
+        if(str.equals("1")){
+            DataService.logoutUser(name);
+            System.out.println("注销成功！");
+            StartMenu();
+            return;
+        }else if(str.equals("2")){
+            return;
+        }else{
+            System.out.println("无效输入！");
+            loggout(name);
+        }
     }
 }

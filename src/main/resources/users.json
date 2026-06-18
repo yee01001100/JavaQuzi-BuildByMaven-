@@ -1,16 +1,1 @@
-[ {
-  "id" : "1",
-  "category" : "admin",
-  "username" : "admin",
-  "password" : "admin"
-}, {
-  "id" : "2",
-  "category" : "test",
-  "username" : "test",
-  "password" : "test"
-}, {
-  "id" : "3",
-  "category" : "student",
-  "username" : "yee",
-  "password" : "yee"
-} ]
+[ ]
