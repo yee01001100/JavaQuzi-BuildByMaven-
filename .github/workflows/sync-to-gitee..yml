@@ -29,4 +29,4 @@ jobs:
           # ⚠️ 替换为你的 GitHub 仓库 SSH 地址
           source-repo: "git@github.com:yee01001100/JavaQuzi-BuildByMaven.git"
           # ⚠️ 替换为你的 Gitee 仓库 SSH 地址
-          destination-repo: "git@github.com:yee01001100/JavaQuzi-BuildByMaven.git"
+          destination-repo: "git@gitee.com:yee01001100/java-quzi-build-by-maven.git"
