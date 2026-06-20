@@ -14,16 +14,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add Gitee to known hosts
+      - name: Setup SSH for Gitee
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa gitee.com >> ~/.ssh/known_hosts
-
-      - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@v1
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/gitee_key
+          chmod 600 ~/.ssh/gitee_key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
-        with:
-          source-repo: "https://github.com/yee01001100/JavaQuzi-BuildByMaven.git"
-          destination-repo: "git@gitee.com:yee01001100/java-quzi-build-by-maven.git"
-          args: "--force"
+
+      - name: Force push all branches to Gitee
+        run: |
+          git remote add gitee git@gitee.com:yee01001100/java-quzi-build-by-maven.git
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/gitee_key -o StrictHostKeyChecking=yes" git push --force --all gitee
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/gitee_key -o StrictHostKeyChecking=yes" git push --force --tags gitee
