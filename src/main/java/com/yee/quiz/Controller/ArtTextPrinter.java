@@ -1,7 +1,7 @@
 package com.yee.quiz.Controller;
 public class ArtTextPrinter {
     public static void show(){
-        String word = "JAVAQUIZE";
+        String word = "JAVAQUIZ";
 
         String[][] letters = new String[8][6];
 

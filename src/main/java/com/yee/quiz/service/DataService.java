@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.yee.quiz.model.*;
+import com.yee.quiz.Controller.PasswordUtil;
 
 public class DataService {
 
@@ -155,7 +156,8 @@ public class DataService {
         List<User> users = loadUsersFromJson();
 
         String newId = String.valueOf(users.size()+1);
-        User newUser = new User(newId, "student", username, password);
+        String hashedPassword = PasswordUtil.hashPassword(password);
+        User newUser = new User(newId, "student", username, hashedPassword);
         users.add(newUser);
 
         saveUsersToJson(users);

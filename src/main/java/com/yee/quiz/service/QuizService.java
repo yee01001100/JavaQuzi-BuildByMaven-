@@ -112,4 +112,8 @@ public class QuizService {
         
         return userLogs;
     }
+
+    public List<QuizLog> getAllQuizLogs() {
+        return DataService.loadQuizLogsFromJson();
+    }
 }

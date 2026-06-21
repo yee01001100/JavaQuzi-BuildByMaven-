@@ -29,7 +29,8 @@ public class QuizController{
         System.out.print(
                 "1.用户登录"+
                 "\n2.用户注册"+
-                "\n3.退出系统\n> "
+                "\n3.退出系统\n"+
+                "4.管理员登录\n> "
         );
     }
 
@@ -49,6 +50,9 @@ public class QuizController{
                     System.out.println("感谢使用！");
                     System.exit(0);
                     break;
+                case "4":
+                    handleAdminLogin();
+                    break;
                 default:
                     System.out.println("无效的选择！请重新输入！");
             }
@@ -67,8 +71,9 @@ public class QuizController{
         boolean loginSuccess = false;
         
         for(User user : users){
-            if(user.getUsername().equals(username) && user.getPassword().equals(password)){
+            if(user.getUsername().equals(username) && com.yee.quiz.Controller.PasswordUtil.verifyPassword(password, user.getPassword())){
                 System.out.println("登录成功！用户："+username+"\n");
+                System.out.println("Category: "+user.getCategory());
                 this.user = user;
                 loginSuccess = true;
                 showQuizMenu();
@@ -111,6 +116,95 @@ public class QuizController{
         handleLogin();
     }
 
+    private void handleAdminLogin(){
+        System.out.println("\n--- 管理员登录 ---");
+        System.out.print("Please input the Administrator password:"+"\n");
+        String password = scanner.nextLine().trim();
+        List<User> user = DataService.loadUsersFromJson();
+        if(com.yee.quiz.Controller.PasswordUtil.verifyPassword(password, user.get(0).getPassword())){
+            System.out.println("登录成功！用户："+user.get(0).getUsername()+"\n");
+            System.out.println("Category: "+user.get(0).getCategory());
+            showAdminMenu();
+        }else{
+            System.out.println("登录失败！密码错误！");
+        }
+    }
+
+    private void showAdminMenu(){
+        while(true){
+            System.out.println("\n--- 管理员菜单 ---");
+            System.out.println("1.查看全部用户");
+            System.out.println("2.查看全部答题记录");
+            System.out.println("3.返回上一级");
+            System.out.print("> ");
+            String choice = scanner.nextLine().trim();
+            
+            switch(choice){
+                case "1":
+                    viewAllUsers();
+                    break;
+                case "2":
+                    viewAllQuizLogs();
+                    break;
+                case "3":
+                    return;
+                default:
+                    System.out.println("无效选择！");
+            }
+        }
+    }
+
+    private void viewAllUsers(){
+        System.out.println("\n--- 全部用户列表 ---");
+        
+        List<User> users = dataService.loadUsersFromJson();
+        
+        if(users.isEmpty()){
+            System.out.println("暂无用户记录！\n");
+            return;
+        }
+        
+        System.out.println("共 " + users.size() + " 个用户：\n");
+        System.out.printf("%-5s %-15s %-15s%n", "ID", "用户名", "类别");
+        System.out.println("---------------------------------------------");
+        
+        for(User user : users){
+            System.out.printf("%-5s %-15s %-15s%n",
+                user.getId(),
+                user.getUsername(),
+                user.getCategory()
+            );
+        }
+        System.out.println();
+    }
+
+    private void viewAllQuizLogs(){
+        System.out.println("\n--- 全部答题记录 ---");
+        
+        List<QuizLog> allLogs = quizService.getAllQuizLogs();
+        
+        if(allLogs.isEmpty()){
+            System.out.println("暂无答题记录！\n");
+            return;
+        }
+        
+        System.out.println("共 " + allLogs.size() + " 条记录：\n");
+        System.out.printf("%-5s %-10s %-8s %-8s %-6s%n", "序号", "用户名", "答对", "答错", "得分");
+        System.out.println("--------------------------------------------");
+        
+        for(int i = 0; i < allLogs.size(); i++){
+            QuizLog log = allLogs.get(i);
+            System.out.printf("%-5d %-10s %-8s %-8s %-6s%n",
+                i + 1,
+                log.getName(),
+                log.getCorrectCount(),
+                log.getWrongCount(),
+                log.getScore() + "分"
+            );
+        }
+        System.out.println();
+    }
+
     private void showQuizMenu(){
         while(true){
             System.out.print(
@@ -133,7 +227,7 @@ public class QuizController{
                     break;
                 case "3":
                     loggout(user.getUsername());
-                    break;
+                    return;
                 case "4":
                     return;
                 default:
@@ -235,7 +329,7 @@ public class QuizController{
         if(str.equals("1")){
             DataService.logoutUser(name);
             System.out.println("注销成功！");
-            StartMenu();
+            this.user = null;
             return;
         }else if(str.equals("2")){
             return;
