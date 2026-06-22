@@ -6,15 +6,17 @@ public class Question {
     private String question;
     private String[] options;
     private String Answer;
+    private String explanation;
 
     public Question(){}
 
-    public Question(String id, String category, String question, String[] options, String Answer){
+    public Question(String id, String category, String question, String[] options, String Answer, String explanation){
         this.id = id;
         this.category = category;
         this.question = question;
         this.options = options;
         this.Answer = Answer;
+        this.explanation = explanation;
     }
     // getter and setter
     public String getId(){return id;}
@@ -31,4 +33,7 @@ public class Question {
 
     public String getAnswer(){return Answer;}
     public void setAnswer(String answer){this.Answer = answer;}
+
+    public String getExplanation(){return explanation;}
+    public void setExplanation(String explanation){this.explanation = explanation;}
 }

@@ -18,6 +18,7 @@ public class DataService {
     private static final String usersJsonPath = DATA_DIR + File.separator + "users.json";
     private static final String questionsJsonPath = DATA_DIR + File.separator + "questions.json";
     private static final String quizLogJsonPath = DATA_DIR + File.separator + "quizLog.json";
+    private static final String quizConfigJsonPath = DATA_DIR + File.separator + "quizConfig.json";
 
     //加载users.json文件
     public static List<User> loadUsersFromJson(){
@@ -26,9 +27,7 @@ public class DataService {
             File file = new File(usersJsonPath);
 
             if(!file.exists()){
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, new java.util.ArrayList<>());
+                initializeDataFile("users.json", file);
             }
 
             List<User> users = objectMapper.readValue(file, new TypeReference<List<User>>(){});
@@ -45,17 +44,7 @@ public class DataService {
             File file = new File(questionsJsonPath);
 
             if(!file.exists()){
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                
-                InputStream inputStream = Question.class.getClassLoader().getResourceAsStream("questions.json");
-                if(inputStream != null){
-                    List<Question> questions = objectMapper.readValue(inputStream, new TypeReference<List<Question>>(){});
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, questions);
-                    inputStream.close();
-                } else {
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, new java.util.ArrayList<>());
-                }
+                initializeDataFile("questions.json", file);
             }
 
             List<Question> questions = objectMapper.readValue(file, new TypeReference<List<Question>>(){});
@@ -72,9 +61,7 @@ public class DataService {
             File file = new File(quizLogJsonPath);
 
             if(!file.exists()){
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, new java.util.ArrayList<>());
+                initializeDataFile("quizLog.json", file);
             }
 
             List<QuizLog> quizLogs = objectMapper.readValue(file, new TypeReference<List<QuizLog>>(){});
@@ -92,6 +79,22 @@ public class DataService {
             }
         }
         return false;
+    }
+
+    private static void initializeDataFile(String resourceName, File targetFile) throws IOException {
+        targetFile.getParentFile().mkdirs();
+        targetFile.createNewFile();
+        
+        InputStream inputStream = DataService.class.getClassLoader().getResourceAsStream(resourceName);
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        if(inputStream != null){
+            List<?> data = objectMapper.readValue(inputStream, new TypeReference<List<?>>(){});
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(targetFile, data);
+            inputStream.close();
+        } else {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(targetFile, new java.util.ArrayList<>());
+        }
     }
 
     //保存新用户至users.json
@@ -174,5 +177,48 @@ public class DataService {
             }
         }
         saveUsersToJson(users);
+    }
+
+    public static QuizConfig loadQuizConfig() {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            File file = new File(quizConfigJsonPath);
+
+            if (!file.exists()) {
+                initializeConfigFile(file);
+            }
+
+            QuizConfig config = objectMapper.readValue(file, QuizConfig.class);
+            return config;
+        } catch (Exception e) {
+            throw new RuntimeException("读取quizConfig.json失败：" + e.getMessage(), e);
+        }
+    }
+
+    public static void saveQuizConfig(QuizConfig config) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            File file = new File(quizConfigJsonPath);
+
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            FileWriter fileWriter = new FileWriter(file);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(fileWriter, config);
+            fileWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException("保存quizConfig.json失败：" + e.getMessage(), e);
+        }
+    }
+
+    private static void initializeConfigFile(File targetFile) throws IOException {
+        targetFile.getParentFile().mkdirs();
+        targetFile.createNewFile();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        QuizConfig defaultConfig = new QuizConfig(30, 10);
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(targetFile, defaultConfig);
     }
 }

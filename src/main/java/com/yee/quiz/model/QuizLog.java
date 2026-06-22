@@ -6,15 +6,17 @@ public class QuizLog {
     private String correctCount;
     private String wrongCount;
     private String score;
+    private String time;
 
     public QuizLog(){}
 
-    public QuizLog(String id, String name, String correctCount, String wrongCount, String score){
+    public QuizLog(String id, String name, String correctCount, String wrongCount, String score, String time){
         this.id = id;
         this.name = name;
         this.correctCount = correctCount;
         this.wrongCount = wrongCount;
         this.score = score;
+        this.time = time;
     }
 
     // getter and setter
@@ -32,4 +34,7 @@ public class QuizLog {
 
     public String getScore(){return score;}
     public void setScore(String score){this.score = score;}
+
+    public String getTime(){return time;}
+    public void setTime(String time){this.time = time;}
 }
